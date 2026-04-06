@@ -1,0 +1,363 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+<meta name="theme-color" content="#111111" />
+<meta name="mobile-web-app-capable" content="yes" />
+<meta name="apple-mobile-web-app-capable" content="yes" />
+<meta name="apple-mobile-web-app-status-bar-style" content="default" />
+<meta name="apple-mobile-web-app-title" content="Fiş Tarayıcı" />
+<link rel="manifest" href="manifest.json" />
+<link rel="apple-touch-icon" href="icon-192.png" />
+<title>Fiş Tarayıcı</title>
+<style>
+:root {
+  --primary:#111;--bg:#fff;--bg2:#f5f5f5;--bg3:#eee;
+  --border:rgba(0,0,0,0.12);--border2:rgba(0,0,0,0.22);
+  --text:#111;--text2:#555;--text3:#999;
+  --success:#1a7a4a;--sbg:#e8f5ee;
+  --danger:#c0392b;--dbg:#fdecea;
+  --info:#1558b0;--radius:12px;--rsm:8px;
+}
+@media(prefers-color-scheme:dark){
+  :root{--primary:#f0f0f0;--bg:#1a1a1a;--bg2:#252525;--bg3:#303030;
+  --border:rgba(255,255,255,0.12);--border2:rgba(255,255,255,0.22);
+  --text:#f0f0f0;--text2:#aaa;--text3:#666;
+  --success:#4caf82;--sbg:#0d2b1e;--danger:#e57373;--dbg:#2b0d0d;--info:#5b9bd5;}
+}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+html,body{height:100%;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:var(--bg);color:var(--text)}
+body{display:flex;flex-direction:column;max-width:480px;margin:0 auto}
+.hdr{padding:14px 18px 10px;border-bottom:0.5px solid var(--border);background:var(--bg);position:sticky;top:0;z-index:10}
+.hdr h1{font-size:17px;font-weight:600}
+.hdr p{font-size:12px;color:var(--text3);margin-top:2px}
+.tabs{display:flex;padding:8px 14px;gap:8px;background:var(--bg);border-bottom:0.5px solid var(--border);position:sticky;top:58px;z-index:9}
+.tab{flex:1;padding:8px 0;text-align:center;font-size:13px;font-weight:500;border-radius:var(--rsm);border:0.5px solid var(--border);cursor:pointer;color:var(--text2);background:var(--bg);transition:all .15s}
+.tab.on{background:var(--primary);color:var(--bg);border-color:var(--primary)}
+.content{flex:1;overflow-y:auto;padding:14px;padding-bottom:40px}
+.step{display:none}.step.on{display:block}
+.upload{border:1.5px dashed var(--border2);border-radius:var(--radius);padding:2.5rem 1rem;text-align:center;cursor:pointer;transition:background .15s}
+.upload:active{background:var(--bg2)}
+.upload .ico{font-size:40px;margin-bottom:10px}
+.upload strong{font-size:15px;font-weight:600;display:block;margin-bottom:4px}
+.upload span{font-size:13px;color:var(--text2)}
+.prev{width:100%;border-radius:var(--radius);max-height:220px;object-fit:contain;background:var(--bg2);margin-bottom:10px}
+.loading{text-align:center;padding:2.5rem 1rem}
+.spin{width:36px;height:36px;border:3px solid var(--border2);border-top-color:var(--text);border-radius:50%;animation:spin .8s linear infinite;margin:0 auto 12px}
+@keyframes spin{to{transform:rotate(360deg)}}
+.loading p{font-size:14px;color:var(--text2)}
+.btn{display:block;width:100%;padding:13px;border-radius:var(--radius);font-size:15px;font-weight:500;cursor:pointer;text-align:center;border:0.5px solid var(--border2);background:var(--bg);color:var(--text);margin-top:9px;transition:opacity .15s,transform .1s}
+.btn:active{transform:scale(0.98);opacity:0.8}
+.btn-p{background:var(--primary);color:var(--bg);border-color:var(--primary)}
+.btn-d{border-color:var(--danger);color:var(--danger)}
+.sec{font-size:11px;font-weight:600;color:var(--text3);letter-spacing:.06em;text-transform:uppercase;margin:18px 0 8px;padding-bottom:5px;border-bottom:0.5px solid var(--border)}
+.fld{margin-bottom:11px}
+.fld label{font-size:12px;color:var(--text2);display:block;margin-bottom:3px;font-weight:500}
+.fld input,.fld select{width:100%;padding:10px 13px;border:0.5px solid var(--border2);border-radius:var(--rsm);font-size:15px;background:var(--bg);color:var(--text);-webkit-appearance:none}
+.fld input:focus,.fld select:focus{outline:none;border-color:var(--text)}
+.r2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.mnr{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px}
+.mnr span{font-size:16px;font-weight:600}
+.mn{background:none;border:0.5px solid var(--border2);border-radius:var(--rsm);width:32px;height:32px;cursor:pointer;font-size:18px;color:var(--text);display:flex;align-items:center;justify-content:center}
+.rc{background:var(--bg2);border-radius:var(--radius);padding:11px 13px;margin-bottom:8px;display:flex;justify-content:space-between;align-items:center;gap:8px}
+.rc .firm{font-size:14px;font-weight:600}
+.rc .det{font-size:12px;color:var(--text2);margin-top:2px}
+.rc .amt{font-size:15px;font-weight:600;text-align:right}
+.rc .dt{font-size:11px;color:var(--text3);margin-top:2px}
+.rcdel{background:none;border:none;color:var(--danger);font-size:18px;cursor:pointer;padding:4px;margin-left:4px}
+.sum{background:var(--bg2);border-radius:var(--radius);padding:13px 15px;display:flex;justify-content:space-between;margin-bottom:12px}
+.sum .lbl{font-size:12px;color:var(--text2);margin-bottom:3px}
+.sum .val{font-size:20px;font-weight:600}
+.empty{text-align:center;padding:3rem 1rem;color:var(--text3);font-size:14px}
+.sgrid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:8px}
+.hint{background:var(--bg2);border-radius:var(--rsm);padding:11px 13px;font-size:12px;color:var(--text2);margin-top:12px;line-height:1.6}
+.hint a{color:var(--info)}
+.toast{position:fixed;bottom:22px;left:50%;transform:translateX(-50%);background:var(--text);color:var(--bg);padding:10px 20px;border-radius:22px;font-size:14px;font-weight:500;opacity:0;transition:opacity .25s;pointer-events:none;z-index:999;white-space:nowrap;max-width:90vw;text-align:center}
+.toast.on{opacity:1}
+.info-box{background:var(--bg2);border-radius:var(--radius);padding:14px;margin-bottom:14px}
+.info-box p{font-size:13px;color:var(--text2);line-height:1.6}
+.info-box a{color:var(--info)}
+.badge{display:inline-block;padding:2px 9px;border-radius:20px;font-size:11px;font-weight:500;margin-left:6px}
+.badge-ok{background:var(--sbg);color:var(--success)}
+.badge-err{background:var(--dbg);color:var(--danger)}
+</style>
+</head>
+<body>
+<div class="hdr"><h1>🧾 Fiş Tarayıcı</h1><p>Fotoğraf çek · AI okusun · Muhasebeye gönder</p></div>
+<div class="tabs">
+  <div class="tab on" onclick="tab('scan')">Tara</div>
+  <div class="tab" onclick="tab('list')">Kayıtlar</div>
+  <div class="tab" onclick="tab('export')">Paylaş</div>
+  <div class="tab" onclick="tab('settings')">Ayarlar</div>
+</div>
+<div class="content">
+
+<!-- TARA -->
+<div id="tScan">
+  <div id="s1" class="step on">
+    <div class="upload" onclick="document.getElementById('fi1').click()">
+      <div class="ico">📷</div>
+      <strong>Kamera ile fotoğraf çek</strong>
+      <span>Dokunarak kamerayı aç</span>
+    </div>
+    <input type="file" id="fi1" accept="image/*" capture="environment" style="display:none" onchange="loadImg(this)">
+    <button class="btn" onclick="document.getElementById('fi2').click()" style="margin-top:10px">Galeriden seç</button>
+    <input type="file" id="fi2" accept="image/*" style="display:none" onchange="loadImg(this)">
+  </div>
+  <div id="s2" class="step">
+    <img id="prev" class="prev" src="" alt="Fiş" />
+    <button class="btn btn-p" onclick="analyze()">🤖 AI ile analiz et</button>
+    <button class="btn" onclick="reset()">Başka fotoğraf seç</button>
+  </div>
+  <div id="s3" class="step">
+    <div class="loading"><div class="spin"></div><p>Fiş okunuyor...</p></div>
+  </div>
+  <div id="s4" class="step">
+    <div class="sec">İşletme bilgileri</div>
+    <div class="fld"><label>İşletme adı</label><input type="text" id="f_firm" placeholder="XYZ Ticaret Ltd. Şti." /></div>
+    <div class="r2">
+      <div class="fld"><label>Vergi no</label><input type="text" id="f_vkn" inputmode="numeric" /></div>
+      <div class="fld"><label>Vergi dairesi</label><input type="text" id="f_vd" /></div>
+    </div>
+    <div class="r2">
+      <div class="fld"><label>İl</label><input type="text" id="f_il" /></div>
+      <div class="fld"><label>İlçe</label><input type="text" id="f_ilce" /></div>
+    </div>
+    <div class="fld"><label>Tarih</label><input type="date" id="f_tarih" /></div>
+    <div class="sec">Tutar bilgileri</div>
+    <div class="fld"><label>Toplam tutar (₺)</label><input type="number" id="f_tutar" step="0.01" inputmode="decimal" onchange="calcKdv()" /></div>
+    <div class="r2">
+      <div class="fld"><label>KDV oranı</label>
+        <select id="f_kdvoran" onchange="calcKdv()">
+          <option value="">Seç</option>
+          <option value="10">%10</option>
+          <option value="18">%18</option>
+          <option value="20">%20</option>
+        </select>
+      </div>
+      <div class="fld"><label>KDV tutarı (₺)</label><input type="number" id="f_kdvtutar" step="0.01" inputmode="decimal" /></div>
+    </div>
+    <button class="btn btn-p" onclick="save()" style="margin-top:6px">Kaydet</button>
+    <button class="btn" onclick="reset()">İptal</button>
+  </div>
+</div>
+
+<!-- KAYITLAR -->
+<div id="tList" style="display:none">
+  <div class="mnr">
+    <button class="mn" onclick="chMonth(-1)">‹</button>
+    <span id="mLabel"></span>
+    <button class="mn" onclick="chMonth(1)">›</button>
+  </div>
+  <div class="sum">
+    <div><div class="lbl">Toplam fiş</div><div class="val" id="sCount">0</div></div>
+    <div style="text-align:right"><div class="lbl">Toplam tutar</div><div class="val" id="sTotal">0 ₺</div></div>
+  </div>
+  <div id="rList"></div>
+  <button class="btn btn-p" onclick="tab('export')" style="margin-top:6px">Muhasebeye gönder →</button>
+</div>
+
+<!-- PAYLAŞ -->
+<div id="tExport" style="display:none">
+  <div class="mnr">
+    <button class="mn" onclick="chMonth(-1)">‹</button>
+    <span id="mLabelE"></span>
+    <button class="mn" onclick="chMonth(1)">›</button>
+  </div>
+  <div class="sum">
+    <div><div class="lbl">Fiş sayısı</div><div class="val" id="eCount">0</div></div>
+    <div style="text-align:right"><div class="lbl">Toplam</div><div class="val" id="eTotal">0 ₺</div></div>
+  </div>
+  <div class="sec">Google Sheets</div>
+  <div class="fld"><label>Apps Script web app URL</label><input type="url" id="scriptUrl" placeholder="https://script.google.com/macros/s/..." /></div>
+  <button class="btn btn-p" onclick="toSheets()">📊 Google Sheets'e gönder</button>
+  <div class="sec">Diğer paylaşım</div>
+  <div class="sgrid">
+    <button class="btn" onclick="doWA()">💬 WhatsApp</button>
+    <button class="btn" onclick="doMail()">📧 E-posta</button>
+    <button class="btn" onclick="doCSV()">📥 CSV indir</button>
+    <button class="btn" onclick="doCopy()">📋 Kopyala</button>
+  </div>
+  <div class="hint">💡 Google Sheets kurulumu için <a href="#" onclick="event.preventDefault();sendPrompt('Google Sheets Apps Script kurulum adımlarını anlat')">buraya tıkla ↗</a></div>
+</div>
+
+<!-- AYARLAR -->
+<div id="tSettings" style="display:none">
+  <div class="sec">Durum</div>
+  <div class="info-box">
+    <p>Bu versiyon <strong>Netlify Functions</strong> kullanıyor.<br>API anahtarını Netlify'da güvenli saklayacaksın — tarayıcıya hiç gelmiyor.<br><br>
+    Aşağıdaki adımları tamamla:</p>
+  </div>
+
+  <div class="sec">Adım 1 — Netlify'da env variable ekle</div>
+  <div class="info-box">
+    <p>
+      1. <a href="https://app.netlify.com" target="_blank">app.netlify.com</a> → Siten → <strong>Site configuration</strong><br>
+      2. Sol menü: <strong>Environment variables</strong><br>
+      3. <strong>Add a variable</strong> tıkla<br>
+      4. Key: <code>ANTHROPIC_API_KEY</code><br>
+      5. Value: API anahtarın (sk-ant-...)<br>
+      6. <strong>Save</strong> → sonra <strong>Deploys → Trigger deploy</strong>
+    </p>
+  </div>
+
+  <div class="sec">Adım 2 — Siteyi yeniden deploy et</div>
+  <div class="info-box">
+    <p>Bu ZIP'i Netlify'a yüklerken <strong>fis-v4 klasörünün içindeki dosyaları</strong> sürükle (klasörü değil, içini).</p>
+  </div>
+
+  <div class="sec">Veri yönetimi</div>
+  <div class="info-box"><p style="line-height:1.7">Tüm fiş kayıtları bu cihazda saklanır.<br>API anahtarı Netlify sunucusunda güvende.</p></div>
+  <button class="btn btn-d" onclick="clearAll()">Tüm verileri sil</button>
+</div>
+
+</div>
+<div class="toast" id="toast"></div>
+<script>
+const MONTHS=['Ocak','Şubat','Mart','Nisan','Mayıs','Haziran','Temmuz','Ağustos','Eylül','Ekim','Kasım','Aralık'];
+let imgB64='', curM=new Date().getMonth(), curY=new Date().getFullYear();
+
+function getR(){try{return JSON.parse(localStorage.getItem('fisR')||'[]')}catch(e){return[]}}
+function setR(r){localStorage.setItem('fisR',JSON.stringify(r))}
+
+function toast(msg){const t=document.getElementById('toast');t.textContent=msg;t.classList.add('on');setTimeout(()=>t.classList.remove('on'),2600)}
+
+function tab(name){
+  const map={scan:'tScan',list:'tList',export:'tExport',settings:'tSettings'};
+  const tabs=['scan','list','export','settings'];
+  tabs.forEach((t,i)=>{
+    document.querySelectorAll('.tab')[i].classList.toggle('on',t===name);
+    document.getElementById(map[t]).style.display=t===name?'block':'none';
+  });
+  if(name!=='scan') renderList();
+}
+
+function setStep(n){for(let i=1;i<=4;i++){const e=document.getElementById('s'+i);if(e)e.classList.toggle('on',i===n)}}
+
+function loadImg(input){
+  const file=input.files[0]; if(!file)return;
+  const reader=new FileReader();
+  reader.onload=e=>{
+    const img=new Image();
+    img.onload=()=>{
+      const c=document.createElement('canvas');
+      const MAX=1024; let w=img.width,h=img.height;
+      if(w>MAX||h>MAX){if(w>h){h=Math.round(h*MAX/w);w=MAX}else{w=Math.round(w*MAX/h);h=MAX}}
+      c.width=w;c.height=h;c.getContext('2d').drawImage(img,0,0,w,h);
+      const url=c.toDataURL('image/jpeg',0.82);
+      imgB64=url.split(',')[1];
+      document.getElementById('prev').src=url;
+      setStep(2);
+    };
+    img.src=e.target.result;
+  };
+  reader.readAsDataURL(file);
+}
+
+function reset(){imgB64='';document.getElementById('fi1').value='';document.getElementById('fi2').value='';setStep(1)}
+
+function calcKdv(){
+  const t=parseFloat(document.getElementById('f_tutar').value)||0;
+  const o=parseFloat(document.getElementById('f_kdvoran').value)||0;
+  if(t&&o)document.getElementById('f_kdvtutar').value=(t*o/(100+o)).toFixed(2);
+}
+
+async function analyze(){
+  if(!imgB64)return toast('Önce fotoğraf seç!');
+  setStep(3);
+  try{
+    const res=await fetch('/api/analyze',{
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({imageBase64:imgB64})
+    });
+    const raw=await res.text();
+    if(!res.ok){
+      let msg='Sunucu hatası: '+res.status;
+      try{msg=JSON.parse(raw).error?.message||msg}catch(e){}
+      if(res.status===500&&raw.includes('API key'))msg='Netlify\'da ANTHROPIC_API_KEY ayarlanmamış!';
+      toast(msg); setStep(2); return;
+    }
+    const data=JSON.parse(raw);
+    const text=(data.content?.[0]?.text||'').replace(/```json|```/g,'').trim();
+    const jm=text.match(/\{[\s\S]*\}/);
+    if(!jm){toast('Fiş okunamadı, daha net fotoğraf çek');setStep(2);return}
+    const p=JSON.parse(jm[0]);
+    document.getElementById('f_firm').value=p.firma||'';
+    document.getElementById('f_vkn').value=p.vkn||'';
+    document.getElementById('f_vd').value=p.vd||'';
+    document.getElementById('f_il').value=p.il||'';
+    document.getElementById('f_ilce').value=p.ilce||'';
+    document.getElementById('f_tarih').value=p.tarih||new Date().toISOString().split('T')[0];
+    document.getElementById('f_tutar').value=p.tutar||'';
+    document.getElementById('f_kdvtutar').value=p.kdvtutar||'';
+    if(p.kdvoran)document.getElementById('f_kdvoran').value=String(p.kdvoran);
+    setStep(4);
+  }catch(e){toast('Hata: '+e.message);setStep(2)}
+}
+
+function save(){
+  const rec={id:Date.now(),firma:document.getElementById('f_firm').value.trim(),vkn:document.getElementById('f_vkn').value.trim(),vd:document.getElementById('f_vd').value.trim(),il:document.getElementById('f_il').value.trim(),ilce:document.getElementById('f_ilce').value.trim(),tarih:document.getElementById('f_tarih').value,tutar:document.getElementById('f_tutar').value,kdvoran:document.getElementById('f_kdvoran').value,kdvtutar:document.getElementById('f_kdvtutar').value};
+  if(!rec.firma)return toast('İşletme adı zorunlu!');
+  if(!rec.tutar)return toast('Tutar zorunlu!');
+  const r=getR(); r.push(rec); setR(r);
+  toast('Fiş kaydedildi ✓'); reset();
+}
+
+function delRec(id){if(!confirm('Bu fişi sil?'))return;setR(getR().filter(r=>r.id!==id));renderList()}
+
+function fmt(n){return parseFloat(n||0).toLocaleString('tr-TR',{minimumFractionDigits:2,maximumFractionDigits:2})}
+
+function mLabel(){return MONTHS[curM]+' '+curY}
+
+function chMonth(d){curM+=d;if(curM<0){curM=11;curY--}if(curM>11){curM=0;curY++}renderList()}
+
+function getMonthRecs(){return getR().filter(r=>{if(!r.tarih)return false;const d=new Date(r.tarih);return d.getMonth()===curM&&d.getFullYear()===curY})}
+
+function renderList(){
+  const lbl=mLabel();
+  ['mLabel','mLabelE'].forEach(id=>{const e=document.getElementById(id);if(e)e.textContent=lbl});
+  const recs=getMonthRecs();
+  const list=document.getElementById('rList');
+  if(list){list.innerHTML=recs.length===0?'<div class="empty">Bu ay henüz fiş yok</div>':recs.map(r=>`<div class="rc"><div><div class="firm">${r.firma||'-'}</div><div class="det">${r.vkn?'VKN: '+r.vkn+' · ':''}${r.il||''}${r.ilce?' / '+r.ilce:''}</div></div><div style="display:flex;align-items:center"><div><div class="amt">${fmt(r.tutar)} ₺</div><div class="dt">${r.tarih||''}${r.kdvoran?' · KDV %'+r.kdvoran:''}</div></div><button class="rcdel" onclick="delRec(${r.id})">✕</button></div></div>`).join('')}
+  const total=recs.reduce((s,r)=>s+(parseFloat(r.tutar)||0),0);
+  ['sCount','eCount'].forEach(id=>{const e=document.getElementById(id);if(e)e.textContent=recs.length});
+  ['sTotal','eTotal'].forEach(id=>{const e=document.getElementById(id);if(e)e.textContent=fmt(total)+' ₺'});
+}
+
+function buildCSV(recs){
+  return 'Firma,VKN,Vergi Dairesi,İl,İlçe,Tarih,Toplam Tutar,KDV Oranı,KDV Tutarı\n'+
+  recs.map(r=>[r.firma,r.vkn,r.vd,r.il,r.ilce,r.tarih,r.tutar,r.kdvoran?'%'+r.kdvoran:'',r.kdvtutar].map(v=>`"${(v||'').replace(/"/g,'""')}"`).join(',')).join('\n');
+}
+
+function buildText(recs){
+  const total=recs.reduce((s,r)=>s+(parseFloat(r.tutar)||0),0);
+  let t=mLabel()+' – Fiş Listesi\n'+'─'.repeat(30)+'\n';
+  recs.forEach((r,i)=>{t+=`${i+1}. ${r.firma}\n   ${r.tarih} | ${fmt(r.tutar)} ₺`;if(r.kdvoran)t+=` | KDV %${r.kdvoran}: ${fmt(r.kdvtutar)} ₺`;t+='\n'});
+  t+='─'.repeat(30)+'\nToplam: '+fmt(total)+' ₺ ('+recs.length+' fiş)';
+  return t;
+}
+
+function doCSV(){const r=getMonthRecs();if(!r.length)return toast('Bu ay kayıt yok!');const b=new Blob(['\uFEFF'+buildCSV(r)],{type:'text/csv;charset=utf-8;'});const a=document.createElement('a');a.href=URL.createObjectURL(b);a.download=`fisler_${curY}_${String(curM+1).padStart(2,'0')}.csv`;a.click();toast('CSV indirildi')}
+function doWA(){const r=getMonthRecs();if(!r.length)return toast('Bu ay kayıt yok!');window.open('https://wa.me/?text='+encodeURIComponent(buildText(r)),'_blank')}
+function doMail(){const r=getMonthRecs();if(!r.length)return toast('Bu ay kayıt yok!');window.open('mailto:?subject='+encodeURIComponent(mLabel()+' Fiş Listesi')+'&body='+encodeURIComponent(buildText(r)),'_blank')}
+function doCopy(){const r=getMonthRecs();if(!r.length)return toast('Bu ay kayıt yok!');navigator.clipboard.writeText(buildText(r)).then(()=>toast('Kopyalandı ✓'))}
+
+async function toSheets(){
+  const url=document.getElementById('scriptUrl').value.trim();
+  const r=getMonthRecs();
+  if(!r.length)return toast('Bu ay kayıt yok!');
+  if(!url)return toast('Apps Script URL\'si gir!');
+  toast('Gönderiliyor...');
+  try{await fetch(url,{method:'POST',mode:'no-cors',headers:{'Content-Type':'application/json'},body:JSON.stringify({records:r,month:curM+1,year:curY})});toast('Google Sheets\'e gönderildi ✓')}
+  catch(e){toast('Hata: '+e.message)}
+}
+
+function clearAll(){if(!confirm('Tüm kayıtlar silinecek!'))return;localStorage.removeItem('fisR');renderList();toast('Silindi')}
+
+renderList();
+if('serviceWorker' in navigator)navigator.serviceWorker.register('sw.js').catch(()=>{});
+</script>
+</body>
+</html>
